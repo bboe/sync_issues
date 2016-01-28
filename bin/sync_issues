@@ -1,0 +1,3 @@
+#!/usr/bin/env ruby
+require 'sync_issues'
+exit SyncIssues.command.run
