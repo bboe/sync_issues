@@ -1,4 +1,6 @@
 require_relative 'error'
+require_relative 'parser'
+require 'English'
 
 module SyncIssues
   # Synchronizer is responsible for the actual synchronization.
@@ -19,9 +21,15 @@ module SyncIssues
         raise Error, "'#{directory}' is not a valid directory"
       end
 
-      files = Dir.glob(File.join(directory, '**/*')).select do |entry|
-        entry.end_with?('.md') && File.file?(entry)
-      end
+      files = Dir.glob(File.join(directory, '**/*')).map do |entry|
+        next unless entry.end_with?('.md') && File.file?(entry)
+        begin
+          Parser.new(File.read(entry)).issue
+        rescue ParseError => exc
+          puts "'#{entry}': #{exc}"
+          nil
+        end
+      end.compact
 
       if files.empty?
         raise Error, "'#{directory}' does not contain any .md files"

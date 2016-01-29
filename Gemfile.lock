@@ -1,0 +1,29 @@
+PATH
+  remote: .
+  specs:
+    sync_issues (0.0.1a1)
+      docopt (~> 0.5)
+      safe_yaml (~> 1.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    docopt (0.5.0)
+    metaclass (0.0.4)
+    minitest (5.8.4)
+    mocha (1.1.0)
+      metaclass (~> 0.0.1)
+    rake (10.5.0)
+    safe_yaml (1.0.4)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  minitest
+  mocha
+  rake
+  sync_issues!
+
+BUNDLED WITH
+   1.11.2
