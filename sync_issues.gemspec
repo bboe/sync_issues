@@ -17,5 +17,6 @@ Gem::Specification.new do |s|
   s.version = SyncIssues::VERSION
 
   s.add_runtime_dependency 'docopt', '~> 0.5'
+  s.add_runtime_dependency 'octokit', '~> 4.2'
   s.add_runtime_dependency 'safe_yaml', '~> 1.0'
 end
