@@ -39,8 +39,7 @@ module SyncIssues
     end
 
     def handle_args(options)
-      SyncIssues.synchronizer(options['DIRECTORY'],
-                              options['REPOSITORY']).run
+      SyncIssues.synchronizer(options['DIRECTORY'], options['REPOSITORY']).run
       @exit_status
     end
   end
