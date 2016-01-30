@@ -22,10 +22,20 @@ module SyncIssues
       elsif (metadata = SafeYAML.load(Regexp.last_match(1))).nil?
         raise ParseError, 'empty frontmatter'
       else
-        @issue = Issue.new content, metadata
+        @issue = Issue.new content, **hash_keys_to_symbols(metadata)
       end
+    rescue ArgumentError => exc
+      raise ParseError, exc.message
     rescue Psych::SyntaxError
       raise ParseError, 'invalid frontmatter'
+    end
+
+    private
+
+    def hash_keys_to_symbols(hash)
+      hash.each_with_object({}) do |(key, value), tmp_hash|
+        tmp_hash[key.to_sym] = value
+      end
     end
   end
 end

@@ -5,22 +5,22 @@ module SyncIssues
   class Issue
     attr_reader :assignee, :content, :title
 
-    def initialize(content, metadata)
-      unless metadata.include?('title')
-        raise Error, 'title missing in frontmatter'
-      end
-      @assignee = verify_string 'assignee', metadata['assignee']
+    def initialize(content, title:, assignee: nil)
+      @assignee = verify_string 'assignee', assignee
       @content = content
-      @title = verify_string 'title', metadata['title'], allow_nil: false
+      @title = verify_string 'title', title, allow_nil: false
     end
 
     private
 
     def verify_string(field, value, allow_nil: true)
       if value.nil?
-        raise Error, "'#{field}' must be provided" unless allow_nil
+        raise IssueError, "'#{field}' must be provided" unless allow_nil
       elsif !value.is_a?(String)
-        raise Error, "'#{field}' can only be a string"
+        raise IssueError, "'#{field}' must be a string"
+      else
+        value.strip!
+        raise IssueError, "'#{field}' must not be blank" if value == ''
       end
       value
     end

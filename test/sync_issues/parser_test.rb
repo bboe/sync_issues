@@ -30,6 +30,13 @@ class ParserTest < MiniTest::Test
     assert_equal 'empty frontmatter', exc.message
   end
 
+  def test_extra_frontmatter
+    SyncIssues::Parser.new("---\ntitle: Foo\na: A\n---\n#{MD_CONTENT}")
+    assert false
+  rescue SyncIssues::ParseError => exc
+    assert_equal 'unknown keyword: a', exc.message
+  end
+
   def test_invalid_frontmatter
     SyncIssues::Parser.new("---\na: {\n---\n#{MD_CONTENT}")
     assert false
