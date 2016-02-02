@@ -57,7 +57,7 @@ module SyncIssues
     end
 
     def synchronize(repository)
-      puts "Repository: #{repository.name}"
+      puts "Repository: #{repository.full_name}"
 
       existing_by_title = {}
       SyncIssues.github.issues(repository.full_name).each do |issue|
@@ -82,6 +82,16 @@ module SyncIssues
         puts "Adding issue: #{issue.title}"
         SyncIssues.github.create_issue(repository, issue)
       end
+    end
+
+    def update_issue(repository, issue, github_issue)
+      changed = []
+      changed << 'title' unless issue.new_title.nil?
+      changed << 'body' unless issue.content == github_issue.body
+      return if changed.empty?
+
+      puts "Updating #{changed.join(', ')} on ##{github_issue.number}"
+      SyncIssues.github.update_issue(repository, github_issue, issue)
     end
   end
 end

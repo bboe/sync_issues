@@ -1,14 +1,18 @@
 require_relative 'error'
 
 module SyncIssues
-  # Synchronizer is responsible for the actual synchronization.
+  # Issue represents an issue to be added or updated.
+  #
+  # new_title is only used when an issue should be renamed. Issues with
+  # new_title set will never be created
   class Issue
-    attr_reader :assignee, :content, :title
+    attr_reader :assignee, :content, :new_title, :title
 
-    def initialize(content, title:, assignee: nil)
+    def initialize(content, title:, assignee: nil, new_title: nil)
       @assignee = verify_string 'assignee', assignee
       @content = content
       @title = verify_string 'title', title, allow_nil: false
+      @new_title = verify_string 'new_title', new_title, allow_nil: true
     end
 
     private
