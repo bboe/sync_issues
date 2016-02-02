@@ -5,9 +5,10 @@ require 'English'
 module SyncIssues
   # Synchronizer is responsible for the actual synchronization.
   class Synchronizer
-    def initialize(directory, repository_names)
+    def initialize(directory, repository_names, update_only: false)
       @issues = issues(directory)
       @repositories = repositories(repository_names)
+      @update_only = update_only
     end
 
     def run
@@ -56,7 +57,7 @@ module SyncIssues
     end
 
     def synchronize(repository)
-      puts "Repository: #{repository.name}"
+      puts "Repository: #{repository.full_name}"
 
       existing_by_title = {}
       SyncIssues.github.issues(repository.full_name).each do |issue|
@@ -65,12 +66,32 @@ module SyncIssues
 
       @issues.each do |issue|
         if existing_by_title.include?(issue.title)
-          puts "Skipping existing issue: #{issue.title}"
-          next
+          update_issue(repository, issue, existing_by_title[issue.title])
+        else
+          create_issue(repository, issue)
         end
+      end
+    end
+
+    private
+
+    def create_issue(repository, issue)
+      if @update_only || issue.new_title
+        puts "Skipping create issue: #{issue.title}"
+      else
         puts "Adding issue: #{issue.title}"
         SyncIssues.github.create_issue(repository, issue)
       end
+    end
+
+    def update_issue(repository, issue, github_issue)
+      changed = []
+      changed << 'title' unless issue.new_title.nil?
+      changed << 'body' unless issue.content == github_issue.body
+      return if changed.empty?
+
+      puts "Updating #{changed.join(', ')} on ##{github_issue.number}"
+      SyncIssues.github.update_issue(repository, github_issue, issue)
     end
   end
 end

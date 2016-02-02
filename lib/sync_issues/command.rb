@@ -10,13 +10,14 @@ module SyncIssues
     sync_issues: A tool that synchronizes a local directory with GitHub issues.
 
     Usage:
-      sync_issues DIRECTORY REPOSITORY...
+      sync_issues [options] DIRECTORY REPOSITORY...
       sync_issues -h | --help
       sync_issues --version
 
     Options:
-      -h --help  Output this help information.
-      --version  Output the sync_issues version (#{VERSION}).
+      -u --update  Only update existing issues.
+      -h --help    Output this help information.
+      --version    Output the sync_issues version (#{VERSION}).
     DOC
 
     def initialize
@@ -39,7 +40,8 @@ module SyncIssues
     end
 
     def handle_args(options)
-      SyncIssues.synchronizer(options['DIRECTORY'], options['REPOSITORY']).run
+      SyncIssues.synchronizer(options['DIRECTORY'], options['REPOSITORY'],
+                              update_only: options['--update']).run
       @exit_status
     end
   end

@@ -13,8 +13,8 @@ module SyncIssues
       @github ||= GitHub.new
     end
 
-    def synchronizer(directory, repositories)
-      Synchronizer.new(directory, repositories)
+    def synchronizer(*args)
+      Synchronizer.new(*args)
     end
   end
 end
