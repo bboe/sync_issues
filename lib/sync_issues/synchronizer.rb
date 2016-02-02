@@ -5,9 +5,10 @@ require 'English'
 module SyncIssues
   # Synchronizer is responsible for the actual synchronization.
   class Synchronizer
-    def initialize(directory, repository_names)
+    def initialize(directory, repository_names, update_only: false)
       @issues = issues(directory)
       @repositories = repositories(repository_names)
+      @update_only = update_only
     end
 
     def run
@@ -65,9 +66,19 @@ module SyncIssues
 
       @issues.each do |issue|
         if existing_by_title.include?(issue.title)
-          puts "Skipping existing issue: #{issue.title}"
-          next
+          update_issue(repository, issue, existing_by_title[issue.title])
+        else
+          create_issue(repository, issue)
         end
+      end
+    end
+
+    private
+
+    def create_issue(repository, issue)
+      if @update_only || issue.new_title
+        puts "Skipping create issue: #{issue.title}"
+      else
         puts "Adding issue: #{issue.title}"
         SyncIssues.github.create_issue(repository, issue)
       end
