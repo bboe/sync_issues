@@ -1,6 +1,4 @@
 require 'minitest/autorun'
-require 'mocha'
-require 'mocha/mini_test'
 require 'sync_issues'
 
 # Test SycnIssues::Issue

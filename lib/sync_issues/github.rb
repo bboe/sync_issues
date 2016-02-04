@@ -25,9 +25,8 @@ module SyncIssues
       raise Error, 'repository not found'
     end
 
-    def update_issue(repository, github_issue, issue)
-      @client.update_issue(repository.full_name, github_issue.number,
-                           issue.new_title || issue.title, issue.content)
+    def update_issue(repository, issue_number, title, content)
+      @client.update_issue(repository.full_name, issue_number, title, content)
     end
 
     private
