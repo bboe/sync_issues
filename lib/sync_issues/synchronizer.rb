@@ -1,3 +1,4 @@
+require_relative 'comparison'
 require_relative 'error'
 require_relative 'parser'
 require 'English'
@@ -85,13 +86,13 @@ module SyncIssues
     end
 
     def update_issue(repository, issue, github_issue)
-      changed = []
-      changed << 'title' unless issue.new_title.nil?
-      changed << 'body' unless issue.content == github_issue.body
-      return if changed.empty?
+      comparison = Comparison.new(issue, github_issue)
+      return unless comparison.changed?
 
-      puts "Updating #{changed.join(', ')} on ##{github_issue.number}"
-      SyncIssues.github.update_issue(repository, github_issue, issue)
+      changed = comparison.changed.join(', ')
+      puts "Updating #{changed} on ##{github_issue.number}"
+      SyncIssues.github.update_issue(repository, github_issue.number,
+                                     comparison.title, comparison.content)
     end
   end
 end
