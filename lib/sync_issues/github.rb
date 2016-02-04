@@ -14,7 +14,7 @@ module SyncIssues
     end
 
     def issues(repository)
-      @client.issues(repository)
+      @client.issues(repository, state: :all)
     end
 
     def repository(repository_name)
