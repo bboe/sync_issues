@@ -40,7 +40,7 @@ If you lose the page with your new access token before creating
 
 Run sync_issues via:
 
-    sync_tasks /path/to/tasks/directory bboe/repo1 appfolio/repo2
+    sync_issues /path/to/tasks/directory bboe/repo1 appfolio/repo2
 
 
 ## Local Issue Directory
