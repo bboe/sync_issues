@@ -7,4 +7,7 @@ module SyncIssues
 
   class ParseError < Error
   end
+
+  class TokenError < Error
+  end
 end
