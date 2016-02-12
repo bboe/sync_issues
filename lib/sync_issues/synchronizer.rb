@@ -7,6 +7,7 @@ module SyncIssues
   # Synchronizer is responsible for the actual synchronization.
   class Synchronizer
     def initialize(directory, repository_names, update_only: false)
+      @github = SyncIssues.github
       @issues = issues(directory)
       @repositories = repositories(repository_names)
       @update_only = update_only
@@ -45,7 +46,7 @@ module SyncIssues
     def repositories(repository_names)
       repositories = repository_names.map do |repository_name|
         begin
-          SyncIssues.github.repository(repository_name)
+          @github.repository(repository_name)
         rescue Error => exc
           puts "'#{repository_name}' #{exc}"
           nil
@@ -61,7 +62,7 @@ module SyncIssues
       puts "Repository: #{repository.full_name}"
 
       existing_by_title = {}
-      SyncIssues.github.issues(repository.full_name).each do |issue|
+      @github.issues(repository.full_name).each do |issue|
         existing_by_title[issue.title] = issue
       end
 
@@ -81,7 +82,7 @@ module SyncIssues
         puts "Skipping create issue: #{issue.title}"
       else
         puts "Adding issue: #{issue.title}"
-        SyncIssues.github.create_issue(repository, issue)
+        @github.create_issue(repository, issue)
       end
     end
 
@@ -91,8 +92,8 @@ module SyncIssues
 
       changed = comparison.changed.join(', ')
       puts "Updating #{changed} on ##{github_issue.number}"
-      SyncIssues.github.update_issue(repository, github_issue.number,
-                                     comparison.title, comparison.content)
+      @github.update_issue(repository, github_issue.number, comparison.title,
+                           comparison.content)
     end
   end
 end
