@@ -10,6 +10,32 @@ To install sync_issues run:
 
     gem install sync_issues
 
+
+## sync_issues.yaml configuration
+
+In order to run sync_issues you will need to create a GitHub API token with the
+`public_repo` scope for creating issues only on public repositories, or the
+`repo` scope for creating issues on both private and public repositories.
+
+![Generate Access Token](img/access_token_generate.png)
+
+To create a token visit https://github.com/settings/tokens/new, and select the
+appropriate scope `repo` or `public_repo` for your projects. Then click the
+green "Generate Token" button to create the token.
+
+![New Access Token](img/access_token_new.png)
+
+Create a config file `$HOME/.config/sync_issues.yaml` with the following
+contents ensuring that you use the access token generated for you:
+
+```yaml
+token: 0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33
+```
+
+If you lose the page with your new access token before creating
+`sync_issues.yaml`, don't fret. Delete the appropriate token, and try again.
+
+
 ## Running sync_issues
 
 Run sync_issues via:
