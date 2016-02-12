@@ -29,6 +29,9 @@ module SyncIssues
       handle_args(Docopt.docopt(DOC, version: VERSION))
     rescue Docopt::Exit => exc
       exit_with_status(exc.message, exc.class.usage != '')
+    rescue TokenError => exc
+      exit_with_status("#{exc.message}\nPlease see:
+        https://github.com/bboe/sync_issues#sync_issuesyaml-configuration")
     rescue Error, Octokit::Unauthorized => exc
       exit_with_status(exc.message)
     end

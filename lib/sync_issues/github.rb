@@ -33,6 +33,7 @@ module SyncIssues
 
     def token
       path = File.expand_path('~/.config/sync_issues.yaml')
+      raise TokenError, "#{path} does not exist" unless File.exist?(path)
       SafeYAML.load(File.read(path))['token']
     end
   end
