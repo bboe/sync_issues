@@ -62,7 +62,7 @@ module SyncIssues
       puts "Repository: #{repository.full_name}"
 
       existing_by_title = {}
-      @github.issues(repository.full_name).each do |issue|
+      @github.issues(repository).each do |issue|
         existing_by_title[issue.title] = issue
       end
 
