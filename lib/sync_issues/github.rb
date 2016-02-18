@@ -7,6 +7,7 @@ module SyncIssues
   class GitHub
     def initialize
       @client = Octokit::Client.new access_token: token
+      @client.auto_paginate = true
     end
 
     def create_issue(repository, issue)
@@ -14,7 +15,7 @@ module SyncIssues
     end
 
     def issues(repository)
-      @client.issues(repository, state: :all)
+      @client.issues(repository.full_name, state: :all)
     end
 
     def repository(repository_name)
