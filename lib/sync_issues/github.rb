@@ -11,7 +11,8 @@ module SyncIssues
     end
 
     def create_issue(repository, issue)
-      @client.create_issue(repository.full_name, issue.title, issue.content)
+      @client.create_issue(repository.full_name, issue.title, issue.content,
+                           assignee: issue.assignee)
     end
 
     def issues(repository)
