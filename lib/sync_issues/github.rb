@@ -11,7 +11,8 @@ module SyncIssues
     end
 
     def create_issue(repository, issue)
-      @client.create_issue(repository.full_name, issue.title, issue.content)
+      @client.create_issue(repository.full_name, issue.title, issue.content,
+                           assignee: issue.assignee)
     end
 
     def issues(repository)
@@ -26,8 +27,9 @@ module SyncIssues
       raise Error, 'repository not found'
     end
 
-    def update_issue(repository, issue_number, title, content)
-      @client.update_issue(repository.full_name, issue_number, title, content)
+    def update_issue(repository, issue_number, title, content, assignee)
+      @client.update_issue(repository.full_name, issue_number, title, content,
+                           assignee: assignee)
     end
 
     private

@@ -93,7 +93,7 @@ module SyncIssues
       changed = comparison.changed.join(', ')
       puts "Updating #{changed} on ##{github_issue.number}"
       @github.update_issue(repository, github_issue.number, comparison.title,
-                           comparison.content)
+                           comparison.content, comparison.assignee)
     end
   end
 end

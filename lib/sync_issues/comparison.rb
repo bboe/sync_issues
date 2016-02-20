@@ -3,10 +3,11 @@ require_relative 'error'
 module SyncIssues
   # Comparison represents differences between Issues (local and GitHub)
   class Comparison
-    attr_reader :changed, :content, :title
+    attr_reader :assignee, :changed, :content, :title
 
     def initialize(issue, github_issue)
       @changed = []
+      @assignee = github_issue.assignee
       @content = github_issue.body
       @title = github_issue.title
       compare(issue, github_issue)
@@ -19,6 +20,11 @@ module SyncIssues
     private
 
     def compare(issue, github_issue)
+      unless issue.assignee == (github_issue.assignee &&
+                                github_issue.assignee.login)
+        @changed << 'assignee'
+        @assignee = issue.assignee
+      end
       unless issue.new_title.nil?
         @changed << 'title'
         @title = issue.new_title
