@@ -5,6 +5,29 @@ require 'sync_issues'
 
 # Test SycnIssues::Comparison
 class ComparisonTest < MiniTest::Test
+  def test_changed_assignee
+    gh_assignee = mock
+    gh_assignee.stubs(login: 'old_assignee')
+
+    issue, github = test_stubs(assignee: 'new_assignee',
+                               gh_assignee: gh_assignee)
+    comparison = SyncIssues::Comparison.new(issue, github)
+    assert comparison.changed?
+    assert_equal 'new_assignee', comparison.assignee
+    assert_equal ['assignee'], comparison.changed
+  end
+
+  def test_changed_assignee_to_nil
+    gh_assignee = mock
+    gh_assignee.stubs(login: 'old_assignee')
+
+    issue, github = test_stubs gh_assignee: gh_assignee
+    comparison = SyncIssues::Comparison.new(issue, github)
+    assert comparison.changed?
+    assert_nil comparison.assignee
+    assert_equal ['assignee'], comparison.changed
+  end
+
   def test_changed_title
     issue, github = test_stubs new_title: 'Something'
     comparison = SyncIssues::Comparison.new(issue, github)
@@ -21,8 +44,17 @@ class ComparisonTest < MiniTest::Test
     assert_equal issue.content, comparison.content
   end
 
-  def test_changed_nothing
+  def test_changed_nothing__simple
     issue, github = test_stubs
+    assert !SyncIssues::Comparison.new(issue, github).changed?
+  end
+
+  def test_changed_nothing__assignee_set
+    gh_assignee = mock
+    gh_assignee.stubs(login: 'old_assignee')
+
+    issue, github = test_stubs(assignee: 'old_assignee',
+                               gh_assignee: gh_assignee)
     assert !SyncIssues::Comparison.new(issue, github).changed?
   end
 
@@ -38,12 +70,14 @@ class ComparisonTest < MiniTest::Test
 
   private
 
-  def test_stubs(content: 'Some content', title: 'GitHub', new_title: nil,
-                 gh_content: 'Some content', gh_title: 'GitHub')
+  def test_stubs(assignee: nil, content: 'Some content', title: 'GitHub',
+                 new_title: nil, gh_assignee: nil, gh_content: 'Some content',
+                 gh_title: 'GitHub')
     issue = mock
     github = mock
-    issue.stubs(content: content, title: title, new_title: new_title)
-    github.stubs(body: gh_content, title: gh_title)
+    issue.stubs(assignee: assignee, content: content, title: title,
+                new_title: new_title)
+    github.stubs(assignee: gh_assignee, body: gh_content, title: gh_title)
     [issue, github]
   end
 end
