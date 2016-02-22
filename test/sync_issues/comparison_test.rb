@@ -35,13 +35,29 @@ class ComparisonTest < MiniTest::Test
     assert_equal ['title'], comparison.changed
   end
 
-  def test_changed_body
+  def test_changed_body__with_assignee
+    gh_assignee = mock
+    gh_assignee.stubs(login: 'old_assignee')
+
+    issue, github = test_stubs assignee: 'old_assignee',
+                               gh_assignee: gh_assignee,
+                               gh_content: 'Some other content'
+    comparison = SyncIssues::Comparison.new(issue, github)
+    assert comparison.changed?
+    assert_equal ['body'], comparison.changed
+    assert_equal 'old_assignee', comparison.assignee
+    assert_equal issue.content, comparison.content
+    assert_equal issue.title, comparison.title
+  end
+
+  def test_changed_body__without_assignee
     issue, github = test_stubs gh_content: 'Some other content'
     comparison = SyncIssues::Comparison.new(issue, github)
     assert comparison.changed?
     assert_equal ['body'], comparison.changed
-    assert_equal issue.title, comparison.title
+    assert_nil comparison.assignee
     assert_equal issue.content, comparison.content
+    assert_equal issue.title, comparison.title
   end
 
   def test_changed_nothing__simple

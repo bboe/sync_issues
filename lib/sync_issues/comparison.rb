@@ -7,7 +7,7 @@ module SyncIssues
 
     def initialize(issue, github_issue)
       @changed = []
-      @assignee = github_issue.assignee
+      @assignee = github_issue.assignee && github_issue.assignee.login
       @content = github_issue.body
       @title = github_issue.title
       compare(issue, github_issue)
@@ -20,8 +20,7 @@ module SyncIssues
     private
 
     def compare(issue, github_issue)
-      unless issue.assignee == (github_issue.assignee &&
-                                github_issue.assignee.login)
+      unless issue.assignee == @assignee
         @changed << 'assignee'
         @assignee = issue.assignee
       end
@@ -29,7 +28,7 @@ module SyncIssues
         @changed << 'title'
         @title = issue.new_title
       end
-      unless content_matches?(issue.content, github_issue.body)
+      unless content_matches?(issue.content, @content)
         @changed << 'body'
         @content = issue.content
       end
