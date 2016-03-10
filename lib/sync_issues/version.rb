@@ -1,4 +1,4 @@
 # SyncIssues
 module SyncIssues
-  VERSION = '0.4.1'.freeze
+  VERSION = '0.5.0'.freeze
 end

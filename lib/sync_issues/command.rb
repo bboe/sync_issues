@@ -16,9 +16,10 @@ module SyncIssues
       sync_issues --version
 
     Options:
-      -u --update  Only update existing issues.
-      -h --help    Output this help information.
-      --version    Output the sync_issues version (#{VERSION}).
+      -h --help       Output this help information.
+      -u --update     Only update existing issues.
+      --no-assignees  Do not synchronize assignees.
+      --version       Output the sync_issues version (#{VERSION}).
     DOC
 
     def initialize
@@ -45,6 +46,7 @@ module SyncIssues
 
     def handle_args(options)
       SyncIssues.synchronizer(options['DIRECTORY'], options['REPOSITORY'],
+                              sync_assignees: !options['--no-assignees'],
                               update_only: options['--update']).run
       @exit_status
     end
