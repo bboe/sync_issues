@@ -11,7 +11,7 @@ module SyncIssues
       @content = github_issue.body
       @sync_assignee = sync_assignee
       @title = github_issue.title
-      compare(issue, github_issue)
+      compare(issue)
     end
 
     def changed?
@@ -20,7 +20,7 @@ module SyncIssues
 
     private
 
-    def compare(issue, github_issue)
+    def compare(issue)
       if @sync_assignee && issue.assignee != @assignee
         @changed << 'assignee'
         @assignee = issue.assignee
@@ -29,10 +29,9 @@ module SyncIssues
         @changed << 'title'
         @title = issue.new_title
       end
-      unless content_matches?(issue.content, @content)
-        @changed << 'body'
-        @content = issue.content
-      end
+      return if content_matches?(issue.content, @content)
+      @changed << 'body'
+      @content = issue.content
     end
 
     def content_matches?(first, second)
