@@ -5,10 +5,11 @@ module SyncIssues
   class Comparison
     attr_reader :assignee, :changed, :content, :title
 
-    def initialize(issue, github_issue)
+    def initialize(issue, github_issue, sync_assignee)
       @changed = []
       @assignee = github_issue.assignee && github_issue.assignee.login
       @content = github_issue.body
+      @sync_assignee = sync_assignee
       @title = github_issue.title
       compare(issue, github_issue)
     end
@@ -20,7 +21,7 @@ module SyncIssues
     private
 
     def compare(issue, github_issue)
-      unless issue.assignee == @assignee
+      if @sync_assignee && issue.assignee != @assignee
         @changed << 'assignee'
         @assignee = issue.assignee
       end

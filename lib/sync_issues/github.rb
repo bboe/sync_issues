@@ -10,9 +10,11 @@ module SyncIssues
       @client.auto_paginate = true
     end
 
-    def create_issue(repository, issue)
+    def create_issue(repository, issue, add_assignee)
+      kwargs = {}
+      kwargs[:assignee] = issue.assignee if add_assignee
       @client.create_issue(repository.full_name, issue.title, issue.content,
-                           assignee: issue.assignee)
+                           **kwargs)
     end
 
     def issues(repository)

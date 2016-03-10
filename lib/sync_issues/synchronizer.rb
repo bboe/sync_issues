@@ -6,10 +6,12 @@ require 'English'
 module SyncIssues
   # Synchronizer is responsible for the actual synchronization.
   class Synchronizer
-    def initialize(directory, repository_names, update_only: false)
+    def initialize(directory, repository_names, sync_assignees: true,
+                   update_only: false)
       @github = SyncIssues.github
       @issues = issues(directory)
       @repositories = repositories(repository_names)
+      @sync_assignees = sync_assignees
       @update_only = update_only
     end
 
@@ -82,12 +84,12 @@ module SyncIssues
         puts "Skipping create issue: #{issue.title}"
       else
         puts "Adding issue: #{issue.title}"
-        @github.create_issue(repository, issue)
+        @github.create_issue(repository, issue, @sync_assignees)
       end
     end
 
     def update_issue(repository, issue, github_issue)
-      comparison = Comparison.new(issue, github_issue)
+      comparison = Comparison.new(issue, github_issue, @sync_assignees)
       return unless comparison.changed?
 
       changed = comparison.changed.join(', ')
