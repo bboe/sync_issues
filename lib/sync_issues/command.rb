@@ -18,6 +18,7 @@ module SyncIssues
     Options:
       -h --help       Output this help information.
       -u --update     Only update existing issues.
+      --labels FILE   A yaml file listing labels that are to be available.
       --no-assignees  Do not synchronize assignees.
       --version       Output the sync_issues version (#{VERSION}).
     DOC
@@ -46,9 +47,17 @@ module SyncIssues
 
     def handle_args(options)
       SyncIssues.synchronizer(options['DIRECTORY'], options['REPOSITORY'],
+                              label_yaml: read_file(options['--labels']),
                               sync_assignees: !options['--no-assignees'],
                               update_only: options['--update']).run
       @exit_status
+    end
+
+    def read_file(filename)
+      return nil if filename.nil?
+      File.read(filename)
+    rescue Errno::ENOENT
+      raise Error, "not found: #{filename}"
     end
   end
 end

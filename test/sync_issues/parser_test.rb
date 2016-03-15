@@ -3,7 +3,7 @@ require 'mocha'
 require 'mocha/mini_test'
 require 'sync_issues'
 
-# Test SycnIssues::Parser
+# Test SyncIssues::Parser
 class ParserTest < MiniTest::Test
   MD_CONTENT = "Markdown Content\n"
 

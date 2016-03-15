@@ -5,6 +5,8 @@ require 'safe_yaml/load'
 module SyncIssues
   # GitHub is responsible access to GitHub's API
   class GitHub
+    attr_reader :client
+
     def initialize
       @client = Octokit::Client.new access_token: token
       @client.auto_paginate = true
@@ -19,6 +21,10 @@ module SyncIssues
 
     def issues(repository)
       @client.issues(repository.full_name, state: :all)
+    end
+
+    def labels(repository)
+      @client.labels(repository.full_name)
     end
 
     def repository(repository_name)
