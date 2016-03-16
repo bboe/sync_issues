@@ -1,15 +1,17 @@
 require_relative 'comparison'
 require_relative 'error'
+require_relative 'label_sync'
 require_relative 'parser'
 require 'English'
 
 module SyncIssues
   # Synchronizer is responsible for the actual synchronization.
   class Synchronizer
-    def initialize(directory, repository_names, sync_assignees: true,
-                   update_only: false)
+    def initialize(directory, repository_names, label_yml: nil,
+                   sync_assignees: true, update_only: false)
       @github = SyncIssues.github
       @issues = issues(directory)
+      @labels = LabelSync.new(@github, label_yml)
       @repositories = repositories(repository_names)
       @sync_assignees = sync_assignees
       @update_only = update_only
@@ -17,8 +19,11 @@ module SyncIssues
 
     def run
       puts "Synchronize #{@issues.count} issue#{@issues.count == 1 ? '' : 's'}"
-      @issues.each { |issue| puts " * #{issue.title}" }
-      @repositories.each { |repository| synchronize(repository) }
+      @repositories.each do |repository|
+        puts "Repository: #{repository.full_name}"
+        @labels.synchronize(repository)
+        synchronize(repository)
+      end
     end
 
     private
@@ -61,8 +66,6 @@ module SyncIssues
     end
 
     def synchronize(repository)
-      puts "Repository: #{repository.full_name}"
-
       existing_by_title = {}
       @github.issues(repository).each do |issue|
         existing_by_title[issue.title] = issue
