@@ -49,28 +49,61 @@ class ComparisonTest < MiniTest::Test
     assert_equal [], comparison.changed
   end
 
-  def test_changed_labels
+  def test_changed_labels__do_not_update_when_previously_set
     issue, github = test_stubs(labels: ['new label'],
                                gh_labels: [{ name: 'old label' }])
-    comparison = SyncIssues::Comparison.new(issue, github, update_labels: true)
+    comparison = SyncIssues::Comparison.new(issue, github, reset_labels: false)
+    assert !comparison.changed?
+    assert_equal ['old label'], comparison.labels
+    assert_equal [], comparison.changed
+  end
+
+  def test_changed_labels__update_when_previously_set_with_force__do_not_sync
+    issue, github = test_stubs(labels: ['new label'],
+                               gh_labels: [{ name: 'old label' }])
+    comparison = SyncIssues::Comparison.new(issue, github, reset_labels: true,
+                                                           sync_labels: false)
+    assert !comparison.changed?
+    assert_equal ['old label'], comparison.labels
+    assert_equal [], comparison.changed
+  end
+
+  def test_changed_labels__update_when_previously_set_with_force
+    issue, github = test_stubs(labels: ['new label'],
+                               gh_labels: [{ name: 'old label' }])
+    comparison = SyncIssues::Comparison.new(issue, github, reset_labels: true)
     assert comparison.changed?
     assert_equal ['new label'], comparison.labels
     assert_equal ['labels'], comparison.changed
   end
 
-  def test_changed_labels_but_do_not_sync
-    issue, github = test_stubs(labels: ['OLD label'])
-    comparison = SyncIssues::Comparison.new(issue, github,
-                                            update_labels: false)
-    assert !comparison.changed?
-    assert_equal [], comparison.labels
-    assert_equal [], comparison.changed
+  def test_changed_labels__update_when_previously_unset
+    issue, github = test_stubs(labels: ['new label'])
+    [false, true].each do |reset|
+      comparison = SyncIssues::Comparison.new(issue, github,
+                                              reset_labels: reset)
+      assert comparison.changed?
+      assert_equal ['new label'], comparison.labels
+      assert_equal ['labels'], comparison.changed
+    end
   end
 
-  def test_changed_labels_case_only
+  def test_changed_labels__update_when_previously_unset__do_not_sync
+    issue, github = test_stubs(labels: ['new label'])
+    [false, true].each do |reset|
+      comparison = SyncIssues::Comparison.new(issue, github,
+                                              reset_labels: reset,
+                                              sync_labels: false)
+      assert !comparison.changed?
+      assert_equal [], comparison.labels
+      assert_equal [], comparison.changed
+    end
+  end
+
+  def test_changed_labels__reset_case_only
     issue, github = test_stubs(labels: ['OLD label'],
                                gh_labels: [{ name: 'old label' }])
-    comparison = SyncIssues::Comparison.new(issue, github, update_labels: true)
+    comparison = SyncIssues::Comparison.new(issue, github, reset_labels: true)
     assert !comparison.changed?
     assert_equal ['old label'], comparison.labels
     assert_equal [], comparison.changed
@@ -79,10 +112,13 @@ class ComparisonTest < MiniTest::Test
   def test_changed_labels_to_nil
     issue, github = test_stubs(labels: nil,
                                gh_labels: [{ name: 'old label' }])
-    comparison = SyncIssues::Comparison.new(issue, github, update_labels: true)
-    assert !comparison.changed?
-    assert_equal ['old label'], comparison.labels
-    assert_equal [], comparison.changed
+    [false, true].each do |force|
+      comparison = SyncIssues::Comparison.new(issue, github,
+                                              reset_labels: force)
+      assert !comparison.changed?
+      assert_equal ['old label'], comparison.labels
+      assert_equal [], comparison.changed
+    end
   end
 
   def test_changed_title

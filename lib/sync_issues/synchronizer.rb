@@ -95,8 +95,9 @@ module SyncIssues
 
     def update_issue(repository, issue, github_issue)
       comparison = Comparison.new(issue, github_issue,
+                                  reset_labels: @reset_labels,
                                   sync_assignee: @sync_assignees,
-                                  update_labels: @reset_labels && @sync_labels)
+                                  sync_labels: @sync_labels)
       return unless comparison.changed?
 
       changed = comparison.changed.join(', ')
