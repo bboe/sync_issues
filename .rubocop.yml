@@ -1,8 +1,14 @@
 Metrics/AbcSize:
   Max: 40
 
+Metrics/ClassLength:
+  Max: 192
+
 Metrics/CyclomaticComplexity:
   Max: 8
+
+Metrics/ParameterLists:
+  CountKeywordArgs: false
 
 Metrics/PerceivedComplexity:
   Max: 8
