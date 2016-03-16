@@ -68,3 +68,32 @@ The frontmatter of an issue file can contain the following attributes:
 * __label__: (optional) Set the labels of the issue to this comma-separated
   string of issues. Existing labels will not be cleared on sync when the field
   is not provided.
+
+
+## Synchronizing Labels
+
+A path to a yaml file can be provided to synchronize labels on a
+repository. This path is provided like so:
+
+    sync_issues --labels yaml_file.yml task_directory org/repo
+
+The yaml file can contain two attributes:
+
+* __keep_existing__: (optional) When ``false`` (default ``true``) all labels
+  that aren't in ``labels`` will be deleted. Set to ``false`` and provide no
+  labels to clear all labels.
+* __labels__: (optional) A mapping of label names to their 6-character
+  hexidecimal color code without a `#` prefix. Color codes that contain only
+  numeric digits, e.g., `000000`, must be contained within quotes.
+
+### Example labels yaml file
+
+```yaml
+keep_existing: false
+labels:
+  in progress: bfe5bf
+  merged: "009800"
+  unstarted: fef2c0
+  waiting on developer: f7c6c7
+  waiting on reviewer: fad8c7
+```
