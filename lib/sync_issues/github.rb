@@ -12,9 +12,10 @@ module SyncIssues
       @client.auto_paginate = true
     end
 
-    def create_issue(repository, issue, add_assignee)
+    def create_issue(repository, issue, add_assignee, add_labels)
       kwargs = {}
       kwargs[:assignee] = issue.assignee if add_assignee
+      kwargs[:labels] = issue.labels if add_labels
       @client.create_issue(repository.full_name, issue.title, issue.content,
                            **kwargs)
     end
@@ -35,9 +36,11 @@ module SyncIssues
       raise Error, 'repository not found'
     end
 
-    def update_issue(repository, issue_number, title, content, assignee)
-      @client.update_issue(repository.full_name, issue_number, title, content,
-                           assignee: assignee)
+    def update_issue(repository, issue_number, comparison)
+      @client.update_issue(repository.full_name, issue_number,
+                           comparison.title, comparison.content,
+                           assignee: comparison.assignee,
+                           labels: comparison.labels)
     end
 
     private

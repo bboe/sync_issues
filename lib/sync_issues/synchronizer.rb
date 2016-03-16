@@ -7,23 +7,22 @@ require 'English'
 module SyncIssues
   # Synchronizer is responsible for the actual synchronization.
   class Synchronizer
-    def initialize(directory, repository_names, label_yml: nil,
-                   sync_assignees: true, update_only: false)
+    def initialize(directory, repository_names, label_yaml: nil,
+                   reset_labels: false, sync_assignees: true,
+                   sync_labels: true, update_only: false)
       @github = SyncIssues.github
       @issues = issues(directory)
-      @labels = LabelSync.new(@github, label_yml)
+      @label_sync = LabelSync.new(@github, label_yaml)
       @repositories = repositories(repository_names)
+      @reset_labels = reset_labels
       @sync_assignees = sync_assignees
+      @sync_labels = sync_labels
       @update_only = update_only
     end
 
     def run
       puts "Synchronize #{@issues.count} issue#{@issues.count == 1 ? '' : 's'}"
-      @repositories.each do |repository|
-        puts "Repository: #{repository.full_name}"
-        @labels.synchronize(repository)
-        synchronize(repository)
-      end
+      @repositories.each { |repository| synchronize(repository) }
     end
 
     private
@@ -66,6 +65,9 @@ module SyncIssues
     end
 
     def synchronize(repository)
+      puts "Repository: #{repository.full_name}"
+      @label_sync.synchronize(repository) if @sync_labels
+
       existing_by_title = {}
       @github.issues(repository).each do |issue|
         existing_by_title[issue.title] = issue
@@ -87,18 +89,19 @@ module SyncIssues
         puts "Skipping create issue: #{issue.title}"
       else
         puts "Adding issue: #{issue.title}"
-        @github.create_issue(repository, issue, @sync_assignees)
+        @github.create_issue(repository, issue, @sync_assignees, @sync_labels)
       end
     end
 
     def update_issue(repository, issue, github_issue)
-      comparison = Comparison.new(issue, github_issue, @sync_assignees)
+      comparison = Comparison.new(issue, github_issue,
+                                  sync_assignee: @sync_assignees,
+                                  update_labels: @reset_labels && @sync_labels)
       return unless comparison.changed?
 
       changed = comparison.changed.join(', ')
       puts "Updating #{changed} on ##{github_issue.number}"
-      @github.update_issue(repository, github_issue.number, comparison.title,
-                           comparison.content, comparison.assignee)
+      @github.update_issue(repository, github_issue.number, comparison)
     end
   end
 end

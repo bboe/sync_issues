@@ -20,6 +20,8 @@ module SyncIssues
       -u --update     Only update existing issues.
       --labels FILE   A yaml file listing labels that are to be available.
       --no-assignees  Do not synchronize assignees.
+      --no-labels     Do not synchronize labels.
+      --reset-labels  Reset labels on a per-issue basis.
       --version       Output the sync_issues version (#{VERSION}).
     DOC
 
@@ -48,7 +50,9 @@ module SyncIssues
     def handle_args(options)
       SyncIssues.synchronizer(options['DIRECTORY'], options['REPOSITORY'],
                               label_yaml: read_file(options['--labels']),
+                              reset_labels: options['--reset-labels'],
                               sync_assignees: !options['--no-assignees'],
+                              sync_labels: !options['--no-labels'],
                               update_only: options['--update']).run
       @exit_status
     end
