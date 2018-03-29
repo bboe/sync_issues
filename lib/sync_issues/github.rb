@@ -16,8 +16,12 @@ module SyncIssues
       kwargs = {}
       kwargs[:assignee] = issue.assignees[0] if add_assignees
       kwargs[:labels] = issue.labels if add_labels
-      @client.create_issue(repository.full_name, issue.title, issue.content,
-                           **kwargs)
+      new_issue = @client.create_issue(repository.full_name, issue.title,
+                                       issue.content, **kwargs)
+      if add_assignees && issue.assignees.size > 1
+        @client.add_assignees(repository.full_name, new_issue.number,
+                              issue.assignees[1..-1])
+      end
     end
 
     def issues(repository)
