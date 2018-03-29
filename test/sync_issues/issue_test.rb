@@ -3,13 +3,13 @@ require 'sync_issues'
 
 # Test SycnIssues::Issue
 class IssueTest < MiniTest::Test
-  def test_invalid_issue_blank_assignee
+  def test_invalid_issue_blank_assignees
     ['', ' ', "\n", " \n", "\n\n"].each do |assignee|
       begin
-        SyncIssues::Issue.new('Content', title: 'A title', assignee: assignee)
+        SyncIssues::Issue.new('Content', title: 'A title', assignees: assignee)
         assert false
       rescue SyncIssues::IssueError => exc
-        assert_equal "'assignee' must not be blank", exc.message
+        assert_equal "'assignees' must not be blank", exc.message
       end
     end
   end
@@ -90,21 +90,21 @@ class IssueTest < MiniTest::Test
 
   def test_valid_issue_string_labels
     issue = SyncIssues::Issue.new('Content', title: 'A title',
-                                             assignee: 'bboe',
+                                             assignees: ['bboe'],
                                              labels: 'label, string')
     assert_equal 'Content', issue.content
     assert_equal 'A title', issue.title
-    assert_equal 'bboe', issue.assignee
+    assert_equal ['bboe'], issue.assignees
     assert_equal ['label, string'], issue.labels
   end
 
   def test_valid_issue_with_all_fields
     issue = SyncIssues::Issue.new('Content', title: 'A title',
-                                             assignee: 'bboe',
+                                             assignees: 'bboe',
                                              labels: %w(a b))
     assert_equal 'Content', issue.content
     assert_equal 'A title', issue.title
-    assert_equal 'bboe', issue.assignee
+    assert_equal ['bboe'], issue.assignees
     assert_equal %w(a b), issue.labels
   end
 
@@ -112,6 +112,6 @@ class IssueTest < MiniTest::Test
     issue = SyncIssues::Issue.new('Content', title: 'A title')
     assert_equal 'Content', issue.content
     assert_equal 'A title', issue.title
-    assert_equal nil, issue.assignee
+    assert_equal nil, issue.assignees
   end
 end
