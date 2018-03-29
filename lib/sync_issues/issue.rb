@@ -6,27 +6,28 @@ module SyncIssues
   # new_title is only used when an issue should be renamed. Issues with
   # new_title set will never be created
   class Issue
-    attr_reader :assignee, :content, :labels, :new_title, :title
+    attr_reader :assignees, :content, :labels, :new_title, :title
 
-    def initialize(content, title:, assignee: nil, labels: nil, new_title: nil)
-      @assignee = verify_string 'assignee', assignee
+    def initialize(content, title:, assignees: nil, labels: nil, new_title: nil)
+      @assignees = verify_array_or_string 'assignees', assignees
+      @assignees.sort! unless @assignees.nil?
       @content = content
-      @labels = verify_labels(labels)
+      @labels = verify_array_or_string 'labels', labels
       @new_title = verify_string 'new_title', new_title, allow_nil: true
       @title = verify_string 'title', title, allow_nil: false
     end
 
     private
 
-    def verify_labels(labels)
-      return nil if labels.nil?
-      if labels.is_a?(String)
-        [verify_string('labels', labels, allow_nil: false)]
-      elsif !labels.is_a?(Array)
-        raise IssueError, "'labels' must be an Array or a String"
+    def verify_array_or_string(field, items)
+      return nil if items.nil?
+      if items.is_a?(String)
+        [verify_string(field, items, allow_nil: false)]
+      elsif !items.is_a?(Array)
+        raise IssueError, "'#{field}' must be an Array or a String"
       else
-        labels.each_with_index.map do |label, i|
-          verify_string("labels[#{i}]", label, allow_nil: false)
+        items.each_with_index.map do |item, i|
+          verify_string("#{field}[#{i}]", item, allow_nil: false)
         end
       end
     end

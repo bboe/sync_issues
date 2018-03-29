@@ -12,9 +12,9 @@ module SyncIssues
       @client.auto_paginate = true
     end
 
-    def create_issue(repository, issue, add_assignee, add_labels)
+    def create_issue(repository, issue, add_assignees, add_labels)
       kwargs = {}
-      kwargs[:assignee] = issue.assignee if add_assignee
+      kwargs[:assignee] = issue.assignees[0] if add_assignees
       kwargs[:labels] = issue.labels if add_labels
       @client.create_issue(repository.full_name, issue.title, issue.content,
                            **kwargs)
@@ -39,8 +39,12 @@ module SyncIssues
     def update_issue(repository, issue_number, comparison)
       @client.update_issue(repository.full_name, issue_number,
                            comparison.title, comparison.content,
-                           assignee: comparison.assignee,
+                           assignee: comparison.assignees[0],
                            labels: comparison.labels)
+      if comparison.assignees.size > 1
+        @client.add_assignees(repository.full_name, issue_number,
+                              comparison.assignees[1..-1])
+      end
     end
 
     private

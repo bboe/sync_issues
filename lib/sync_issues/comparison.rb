@@ -3,16 +3,18 @@ require_relative 'error'
 module SyncIssues
   # Comparison represents differences between Issues (local and GitHub)
   class Comparison
-    attr_reader :assignee, :changed, :content, :labels, :title
+    attr_reader :assignees, :changed, :content, :labels, :title
 
     def initialize(issue, github_issue, reset_labels: false,
-                   sync_assignee: true, sync_labels: true)
+                   sync_assignees: true, sync_labels: true)
       @changed = []
-      @assignee = github_issue.assignee && github_issue.assignee.login
+      @assignees = github_issue.assignees.map do |assignee|
+        assignee.login
+      end.sort
       @content = github_issue.body
       @labels = github_issue.labels.map { |label| label[:name] }
       @title = github_issue.title
-      compare(issue, reset_labels, sync_assignee, sync_labels)
+      compare(issue, reset_labels, sync_assignees, sync_labels)
     end
 
     def changed?
@@ -21,10 +23,10 @@ module SyncIssues
 
     private
 
-    def compare(issue, reset_labels, sync_assignee, sync_labels)
-      if sync_assignee && issue.assignee != @assignee
-        @changed << 'assignee'
-        @assignee = issue.assignee
+    def compare(issue, reset_labels, sync_assignees, sync_labels)
+      if sync_assignees && update_assignees?(issue)
+        @changed << 'assignees'
+        @assignees = issue.assignees
       end
       if sync_labels && update_label?(issue, reset_labels)
         @changed << 'labels'
@@ -44,9 +46,18 @@ module SyncIssues
       first.gsub(/\[x\]/, '[ ]') == second.gsub(/\[x\]/, '[ ]')
     end
 
+    def assignees_match?(new_assignees)
+      # Assignee uniqueness is not case-sensitive.
+      new_assignees.map(&:downcase) == @assignees.map(&:downcase)
+    end
+
     def labels_match?(new_labels)
       # Label uniqueness is not case-sensitive.
       new_labels.map(&:downcase) == @labels.map(&:downcase)
+    end
+
+    def update_assignees?(issue)
+      !issue.assignees.nil? && !assignees_match?(issue.assignees)
     end
 
     def update_label?(issue, reset_labels)
