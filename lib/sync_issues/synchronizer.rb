@@ -32,7 +32,7 @@ module SyncIssues
         raise Error, "'#{directory}' is not a valid directory"
       end
 
-      issues = Dir.glob(File.join(directory, '**/*')).map do |entry|
+      issues = Dir.glob(File.join(directory, '**/*')).sort.map do |entry|
         next unless entry.end_with?('.md') && File.file?(entry)
         begin
           Parser.new(File.read(entry)).issue
